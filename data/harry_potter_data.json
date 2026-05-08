@@ -1,0 +1,122 @@
+[
+  {
+    "id": "103cb127-8bb3-4a34-9fd3-c193a9a6cf54",
+    "last_name": "Potter",
+    "first_name": "Harry",
+    "house_name": "Gryffindor"
+  },
+  {
+    "id": "3b3cdd9b-1763-46c0-9731-9c99f7ebfcf9",
+    "last_name": "Granger",
+    "first_name": "Hermione",
+    "house_name": "Gryffindor"
+  },
+  {
+    "id": "778fc3ef-1fce-4f41-a83e-959de33e77f0",
+    "last_name": "Weasley",
+    "first_name": "Ronald",
+    "house_name": "Gryffindor"
+  },
+  {
+    "id": "b3f5448e-8862-422e-af1f-04c43cb44850",
+    "last_name": "Weasley",
+    "first_name": "Ginny",
+    "house_name": "Gryffindor"
+  },
+  {
+    "id": "20d25f86-de02-4666-a8c5-dff5afa1e040",
+    "last_name": "Longbottom",
+    "first_name": "Neville",
+    "house_name": "Gryffindor"
+  },
+  {
+    "id": "d05247f3-ce6f-4a38-8eb5-6e55fe2d6a01",
+    "last_name": "Malfoy",
+    "first_name": "Draco",
+    "house_name": "Slytherin"
+  },
+  {
+    "id": "8744a708-69ee-489b-9a31-731b25cb570f",
+    "last_name": "Goyle",
+    "first_name": "Gregory",
+    "house_name": "Slytherin"
+  },
+  {
+    "id": "84a5bd81-2ba5-4b14-b888-d41823a10dfa",
+    "last_name": "Crabbe",
+    "first_name": "Vincent",
+    "house_name": "Slytherin"
+  },
+  {
+    "id": "a09298f2-00cd-4f15-9727-3867a2402cc4",
+    "last_name": "Lovegood",
+    "first_name": "Luna",
+    "house_name": "Ravenclaw"
+  },
+  {
+    "id": "940c7ffe-b1ef-48fd-b654-2f01eedc0cd3",
+    "last_name": "Chang",
+    "first_name": "Cho",
+    "house_name": "Ravenclaw"
+  },
+  {
+    "id": "e536a298-c40d-42a4-8a6f-144956aa2f5b",
+    "last_name": "Boot",
+    "first_name": "Terry",
+    "house_name": "Ravenclaw"
+  },
+  {
+    "id": "2049a9ba-db99-4431-9e23-7065a01a775d",
+    "last_name": "Diggory",
+    "first_name": "Cedric",
+    "house_name": "Hufflepuff"
+  },
+  {
+    "id": "41a1d3e8-ceab-4d27-9fca-a3f4857ac0c9",
+    "last_name": "Abbott",
+    "first_name": "Hannah",
+    "house_name": "Hufflepuff"
+  },
+  {
+    "id": "827281f8-17c8-4f64-a3d3-63af68805abc",
+    "last_name": "Macmillan",
+    "first_name": "Ernie",
+    "house_name": "Hufflepuff"
+  },
+  {
+    "id": "36b912aa-9386-46f0-9288-78bc5efbee6c",
+    "last_name": "Tonks",
+    "first_name": "Nymphadora",
+    "house_name": "Hufflepuff"
+  },
+  {
+    "id": "f479330c-cfe3-4df1-a240-4681148b202e",
+    "last_name": "Dumbledore",
+    "first_name": "Albus",
+    "house_name": "Gryffindor"
+  },
+  {
+    "id": "b696ea4c-c08c-4d67-be91-47e475e1a9f7",
+    "last_name": "McGonagall",
+    "first_name": "Minerva",
+    "house_name": "Gryffindor"
+  },
+  {
+    "id": "d4e6d7c0-8cf1-4f57-baa1-31d54e018150",
+    "last_name": "Snape",
+    "first_name": "Severus",
+    "house_name": "Slytherin"
+  },
+  {
+    "id": "b30000dc-400d-4513-a2b8-0aba4f089e2c",
+    "last_name": "Sprout",
+    "first_name": "Pomona",
+    "house_name": "Hufflepuff"
+  },
+  {
+    "id": "10c429e9-a9ca-420c-a46b-eccda00884ae",
+    "last_name": "Flitwick",
+    "first_name": "Filius",
+    "house_name": "Ravenclaw"
+  }
+]
