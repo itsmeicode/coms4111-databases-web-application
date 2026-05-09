@@ -24,6 +24,11 @@ if __package__ in (None, ""):
         HarryPotterCollection,
         HarryPotterResource,
     )
+    from app.resources.OrderResource import (
+        Order,
+        OrderCollection,
+        OrderResource,
+    )
 else:
     from .resources.CustomerResource import (
         Customer,
@@ -35,6 +40,11 @@ else:
         HarryPotterCollection,
         HarryPotterResource,
     )
+    from .resources.OrderResource import (
+        Order,
+        OrderCollection,
+        OrderResource,
+    )
 
 
 def _get_app_name() -> str:
@@ -45,6 +55,7 @@ def _get_app_name() -> str:
 app = FastAPI(title=_get_app_name(), version="0.1.0")
 harry_potter_resource = HarryPotterResource()
 customer_resource = CustomerResource()
+order_resource = OrderResource()
 
 
 class EchoRequest(BaseModel):
@@ -162,6 +173,52 @@ def update_customer(customerNumber: int, new_data: Customer) -> dict[str, int]:
 @app.delete("/customers/{customerNumber}", tags=["customers"])
 def delete_customer(customerNumber: int) -> dict[str, int]:
     deleted = customer_resource.delete(customerNumber)
+    return {"deleted": deleted}
+
+
+@app.get("/orders", tags=["orders"])
+def list_orders(
+    status: str | None = None,
+    customerNumber: int | None = None,
+    orderDate: str | None = None,
+) -> OrderCollection:
+    template: dict = {}
+    if status is not None:
+        template["status"] = status
+    if customerNumber is not None:
+        template["customerNumber"] = customerNumber
+    if orderDate is not None:
+        template["orderDate"] = orderDate
+    return order_resource.get(template)
+
+
+@app.post("/orders", tags=["orders"])
+def create_order(new_data: Order) -> str:
+    return str(order_resource.post(new_data))
+
+
+@app.get("/orders/{orderNumber}", tags=["orders"])
+def get_order(orderNumber: int) -> Order:
+    try:
+        return order_resource.get_by_id(orderNumber)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
+@app.put("/orders/{orderNumber}", tags=["orders"])
+def update_order(orderNumber: int, new_data: Order) -> dict[str, int]:
+    try:
+        updated = order_resource.put(orderNumber, new_data)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    if updated == 0:
+        raise HTTPException(status_code=404, detail=f"No order with orderNumber {orderNumber}")
+    return {"updated": updated}
+
+
+@app.delete("/orders/{orderNumber}", tags=["orders"])
+def delete_order(orderNumber: int) -> dict[str, int]:
+    deleted = order_resource.delete(orderNumber)
     return {"deleted": deleted}
 
 
