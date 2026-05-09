@@ -4,18 +4,32 @@ import os
 import sys
 from pathlib import Path
 
+from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+
+# Load .env so MYSQL_* variables are available when resources are instantiated below.
+load_dotenv(Path(__file__).resolve().parents[1] / ".env")
 
 if __package__ in (None, ""):
     # Supports running this file directly (e.g., PyCharm "main.py" debug config).
     sys.path.append(str(Path(__file__).resolve().parents[1]))
+    from app.resources.CustomerResource import (
+        Customer,
+        CustomerCollection,
+        CustomerResource,
+    )
     from app.resources.HarryPotterResource import (
         HarryPotterCharacter,
         HarryPotterCollection,
         HarryPotterResource,
     )
 else:
+    from .resources.CustomerResource import (
+        Customer,
+        CustomerCollection,
+        CustomerResource,
+    )
     from .resources.HarryPotterResource import (
         HarryPotterCharacter,
         HarryPotterCollection,
@@ -30,6 +44,7 @@ def _get_app_name() -> str:
 
 app = FastAPI(title=_get_app_name(), version="0.1.0")
 harry_potter_resource = HarryPotterResource()
+customer_resource = CustomerResource()
 
 
 class EchoRequest(BaseModel):
@@ -95,6 +110,58 @@ def update_harry_potter_character(
 @app.delete("/harry-potter/{character_id}", tags=["harry-potter"])
 def delete_harry_potter_character(character_id: str) -> dict[str, int]:
     deleted = harry_potter_resource.delete(character_id)
+    return {"deleted": deleted}
+
+
+@app.get("/customers", tags=["customers"])
+def list_customers(
+    customerName: str | None = None,
+    city: str | None = None,
+    state: str | None = None,
+    country: str | None = None,
+    salesRepEmployeeNumber: int | None = None,
+) -> CustomerCollection:
+    template: dict = {}
+    if customerName is not None:
+        template["customerName"] = customerName
+    if city is not None:
+        template["city"] = city
+    if state is not None:
+        template["state"] = state
+    if country is not None:
+        template["country"] = country
+    if salesRepEmployeeNumber is not None:
+        template["salesRepEmployeeNumber"] = salesRepEmployeeNumber
+    return customer_resource.get(template)
+
+
+@app.post("/customers", tags=["customers"])
+def create_customer(new_data: Customer) -> str:
+    return str(customer_resource.post(new_data))
+
+
+@app.get("/customers/{customerNumber}", tags=["customers"])
+def get_customer(customerNumber: int) -> Customer:
+    try:
+        return customer_resource.get_by_id(customerNumber)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
+@app.put("/customers/{customerNumber}", tags=["customers"])
+def update_customer(customerNumber: int, new_data: Customer) -> dict[str, int]:
+    try:
+        updated = customer_resource.put(customerNumber, new_data)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    if updated == 0:
+        raise HTTPException(status_code=404, detail=f"No customer with customerNumber {customerNumber}")
+    return {"updated": updated}
+
+
+@app.delete("/customers/{customerNumber}", tags=["customers"])
+def delete_customer(customerNumber: int) -> dict[str, int]:
+    deleted = customer_resource.delete(customerNumber)
     return {"deleted": deleted}
 
 
