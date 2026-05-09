@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import re
 from typing import Any
 
 import pymysql
@@ -8,6 +9,15 @@ from pymysql.connections import Connection
 from pymysql.cursors import DictCursor
 
 from .AbstractBaseDataService import AbstractBaseDataService
+
+_IDENTIFIER_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
+
+
+def _quote_identifier(name: str) -> str:
+    """Backtick-quote a MySQL identifier after validating it is a safe column/table name."""
+    if not isinstance(name, str) or not _IDENTIFIER_RE.match(name):
+        raise ValueError(f"Invalid SQL identifier: {name!r}")
+    return f"`{name}`"
 
 
 class MySQLDataService(AbstractBaseDataService):
@@ -45,10 +55,38 @@ class MySQLDataService(AbstractBaseDataService):
         return pymysql.connect(cursorclass=DictCursor, autocommit=False, **self._conn_params)
 
     def retrieveByPrimaryKey(self, primary_key) -> dict:
-        raise NotImplementedError("Implemented in Task 1.3")
+        if isinstance(self._primary_key_field, list):
+            raise NotImplementedError("Composite primary keys: implemented in Task 1.5")
+        table = _quote_identifier(self._table_name)
+        pk_col = _quote_identifier(self._primary_key_field)
+        sql = f"SELECT * FROM {table} WHERE {pk_col} = %s"
+        conn = self._connect()
+        try:
+            with conn.cursor() as cur:
+                cur.execute(sql, (primary_key,))
+                row = cur.fetchone()
+            return dict(row) if row else {}
+        finally:
+            conn.close()
 
     def retrieveByTemplate(self, template: dict) -> list[dict]:
-        raise NotImplementedError("Implemented in Task 1.3")
+        table = _quote_identifier(self._table_name)
+        if not template:
+            sql = f"SELECT * FROM {table}"
+            params: tuple = ()
+        else:
+            cols = [_quote_identifier(k) for k in template.keys()]
+            where = " AND ".join(f"{c} = %s" for c in cols)
+            sql = f"SELECT * FROM {table} WHERE {where}"
+            params = tuple(template.values())
+        conn = self._connect()
+        try:
+            with conn.cursor() as cur:
+                cur.execute(sql, params)
+                rows = cur.fetchall()
+            return [dict(r) for r in rows]
+        finally:
+            conn.close()
 
     def create(self, payload: dict) -> str:
         raise NotImplementedError("Implemented in Task 1.4")
