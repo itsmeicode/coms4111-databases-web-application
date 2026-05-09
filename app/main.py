@@ -24,6 +24,11 @@ if __package__ in (None, ""):
         HarryPotterCollection,
         HarryPotterResource,
     )
+    from app.resources.OrderDetailsResource import (
+        OrderDetail,
+        OrderDetailsCollection,
+        OrderDetailsResource,
+    )
     from app.resources.OrderResource import (
         Order,
         OrderCollection,
@@ -39,6 +44,11 @@ else:
         HarryPotterCharacter,
         HarryPotterCollection,
         HarryPotterResource,
+    )
+    from .resources.OrderDetailsResource import (
+        OrderDetail,
+        OrderDetailsCollection,
+        OrderDetailsResource,
     )
     from .resources.OrderResource import (
         Order,
@@ -56,6 +66,7 @@ app = FastAPI(title=_get_app_name(), version="0.1.0")
 harry_potter_resource = HarryPotterResource()
 customer_resource = CustomerResource()
 order_resource = OrderResource()
+order_details_resource = OrderDetailsResource()
 
 
 class EchoRequest(BaseModel):
@@ -219,6 +230,52 @@ def update_order(orderNumber: int, new_data: Order) -> dict[str, int]:
 @app.delete("/orders/{orderNumber}", tags=["orders"])
 def delete_order(orderNumber: int) -> dict[str, int]:
     deleted = order_resource.delete(orderNumber)
+    return {"deleted": deleted}
+
+
+@app.get("/orderdetails", tags=["orderdetails"])
+def list_order_details(
+    orderNumber: int | None = None,
+    productCode: str | None = None,
+) -> OrderDetailsCollection:
+    template: dict = {}
+    if orderNumber is not None:
+        template["orderNumber"] = orderNumber
+    if productCode is not None:
+        template["productCode"] = productCode
+    return order_details_resource.get(template)
+
+
+@app.post("/orderdetails", tags=["orderdetails"])
+def create_order_detail(new_data: OrderDetail) -> str:
+    return str(order_details_resource.post(new_data))
+
+
+@app.get("/orders/{orderNumber}/orderdetails/{productCode}", tags=["orderdetails"])
+def get_order_detail(orderNumber: int, productCode: str) -> OrderDetail:
+    try:
+        return order_details_resource.get_by_composite_id(orderNumber, productCode)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
+@app.put("/orders/{orderNumber}/orderdetails/{productCode}", tags=["orderdetails"])
+def update_order_detail(
+    orderNumber: int, productCode: str, new_data: OrderDetail
+) -> dict[str, int]:
+    pk = {"orderNumber": orderNumber, "productCode": productCode}
+    try:
+        updated = order_details_resource.put(pk, new_data)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    if updated == 0:
+        raise HTTPException(status_code=404, detail=f"No order detail with {pk}")
+    return {"updated": updated}
+
+
+@app.delete("/orders/{orderNumber}/orderdetails/{productCode}", tags=["orderdetails"])
+def delete_order_detail(orderNumber: int, productCode: str) -> dict[str, int]:
+    deleted = order_details_resource.delete({"orderNumber": orderNumber, "productCode": productCode})
     return {"deleted": deleted}
 
 
