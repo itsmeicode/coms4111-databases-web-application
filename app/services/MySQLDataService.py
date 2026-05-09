@@ -89,10 +89,69 @@ class MySQLDataService(AbstractBaseDataService):
             conn.close()
 
     def create(self, payload: dict) -> str:
-        raise NotImplementedError("Implemented in Task 1.4")
+        if not payload:
+            raise ValueError("create requires a non-empty payload")
+        if isinstance(self._primary_key_field, list):
+            raise NotImplementedError("Composite primary keys: implemented in Task 1.5")
+        table = _quote_identifier(self._table_name)
+        cols = [_quote_identifier(k) for k in payload.keys()]
+        placeholders = ", ".join(["%s"] * len(payload))
+        sql = f"INSERT INTO {table} ({', '.join(cols)}) VALUES ({placeholders})"
+        conn = self._connect()
+        try:
+            with conn.cursor() as cur:
+                cur.execute(sql, tuple(payload.values()))
+                pk_value = payload.get(self._primary_key_field)
+                if pk_value is None:
+                    pk_value = cur.lastrowid
+            conn.commit()
+            return str(pk_value)
+        except Exception:
+            conn.rollback()
+            raise
+        finally:
+            conn.close()
 
     def updateByPrimaryKey(self, primary_key, payload: dict) -> int:
-        raise NotImplementedError("Implemented in Task 1.4")
+        if isinstance(self._primary_key_field, list):
+            raise NotImplementedError("Composite primary keys: implemented in Task 1.5")
+        # PK changes via update are not allowed — drop the PK column from SET if present.
+        update_fields = {k: v for k, v in payload.items() if k != self._primary_key_field}
+        if not update_fields:
+            return 0
+        table = _quote_identifier(self._table_name)
+        pk_col = _quote_identifier(self._primary_key_field)
+        set_clause = ", ".join(f"{_quote_identifier(k)} = %s" for k in update_fields.keys())
+        sql = f"UPDATE {table} SET {set_clause} WHERE {pk_col} = %s"
+        params = tuple(update_fields.values()) + (primary_key,)
+        conn = self._connect()
+        try:
+            with conn.cursor() as cur:
+                cur.execute(sql, params)
+                rowcount = cur.rowcount
+            conn.commit()
+            return rowcount
+        except Exception:
+            conn.rollback()
+            raise
+        finally:
+            conn.close()
 
     def deleteByPrimaryKey(self, primary_key) -> int:
-        raise NotImplementedError("Implemented in Task 1.4")
+        if isinstance(self._primary_key_field, list):
+            raise NotImplementedError("Composite primary keys: implemented in Task 1.5")
+        table = _quote_identifier(self._table_name)
+        pk_col = _quote_identifier(self._primary_key_field)
+        sql = f"DELETE FROM {table} WHERE {pk_col} = %s"
+        conn = self._connect()
+        try:
+            with conn.cursor() as cur:
+                cur.execute(sql, (primary_key,))
+                rowcount = cur.rowcount
+            conn.commit()
+            return rowcount
+        except Exception:
+            conn.rollback()
+            raise
+        finally:
+            conn.close()
