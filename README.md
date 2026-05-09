@@ -1,6 +1,28 @@
 # W4111 Web Application Project
 
-This repository is the **starter template** for the course web application assignment. You will fork or clone it and implement a complete, production-style data-backed service on top of the skeleton provided here.
+W4111 Spring 2026 — REST API backed by MySQL exposing the `customers`, `orders`, and `orderdetails` tables from the **`classicmodels`** database.
+
+## Quick start
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+
+# Load the classicmodels schema (one time)
+mysql -u root -p < data/mysqlsampledatabase.sql
+
+# Configure
+cp .env.example .env   # then edit .env with your MySQL password
+
+# Run the API
+python -m app.main     # serves on http://localhost:8000
+
+# Or run the test suite
+pytest tests/
+```
+
+Open `/docs` for interactive API docs. The full notebook walkthrough is in `tests/classicmodels_paths.ipynb` (PDF: `tests/classicmodels_paths.pdf`).
 
 ## Project goal
 
@@ -83,23 +105,16 @@ Apply the same expectations to your **customer** endpoints (**`CustomerResource`
 
 Your domain may require additional operations (pagination, joins, aggregates); document them in your API and notebook.
 
-## Local setup
+## Running the notebook
+
+The submission notebook (`tests/classicmodels_paths.ipynb`) calls the running API over HTTP. Start the server in one terminal, then in another:
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate   # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
+pip install jupyterlab     # one-time, if not already installed
+jupyter lab tests/classicmodels_paths.ipynb
 ```
 
-Run the server (defaults in code: host `0.0.0.0`, port `8000`):
-
-```bash
-python -m app.main
-```
-
-Open your Jupyter Notebook (install Jupyter in your environment if needed: `pip install notebook` or `pip install jupyterlab`), run the server in another terminal if your cells call HTTP endpoints, then execute the notebook cells top to bottom.
-
-Interactive docs: open `/docs` once the server is running.
+Run the cells top to bottom. The exported PDF (`tests/classicmodels_paths.pdf`) shows the expected output of every cell.
 
 ## Academic integrity
 
